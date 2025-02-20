@@ -24,4 +24,4 @@ const UsuariosView = () => {
   );
 };
 
-export default UsuariosView; // ✅ Asegúrate de exportarlo correctamente
+export default UsuariosView;
