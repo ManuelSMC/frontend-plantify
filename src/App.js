@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Prueba para proyecto Plantify - Obtener datos de base de datos en servidor</h1>
+        <h1>Prueba1 para proyecto Plantify - Obtener datos de base de datos en servidor</h1>
         <UsuariosView />
       </header>
     </div>
