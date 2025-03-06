@@ -1,38 +1,105 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
 .App-header {
-  background-color: #282c34;
+  background-image: url('assets/fondo.PNG'); 
+  background-size: cover;
+  background-position: center;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center; 
+  justify-content: center; 
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+h1 {
+  font-size: 5rem;
+  margin-bottom: 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.logo {
+  width: 170px;
+  margin-bottom: 20px; 
+}
+
+.login-container {
+  background: rgba(255, 255, 255, 0.2); 
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  margin: 0 auto; 
+  width: 100%; 
+  max-width: 350px; 
+}
+
+.input-container,
+.password-container {
+  position: relative;
+  width: 250px; 
+  margin: 0 auto;
+}
+
+.input-field,
+.password-field {
+  width: 100%;
+  padding-left: 30px; 
+  padding-right: 10px; 
+  padding-top: 15px;
+  padding-bottom: 15px;
+  margin: 10px 0;
+  border: 2px solid #388E3B;
+  border-radius: 25px;
+  font-size: 1rem;
+  background: white;
+  color: #388E3B;
+  height: 40px; 
+  box-sizing: border-box; 
+}
+
+.input-icon,
+.password-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+}
+
+.input-field:focus,
+.password-field:focus {
+  border-color: #388E3B;
+  color: #388E3B;
+  outline: none;
+}
+
+.login-button {
+  background-color: #388E3B;
+  color: white;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 200px;
+}
+
+.register-container {
+  margin-top: 20px;
+  text-align: center;
+  width: 100%;
+}
+
+.register-text {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.register-text a {
+  color: #ffffff;
+  text-decoration: underline;
+  cursor: pointer;
 }
