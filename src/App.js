@@ -12,7 +12,7 @@ function App() {
 
   const iniciarSesion = async () => {
     try {
-      const respuesta = await fetch("", {
+      const respuesta = await fetch("https://www.url.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
