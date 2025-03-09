@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "./App.css"; 
+import { useNavigate } from "react-router-dom"; // Importamos useNavigate
+import "./App.css";
 import logo from "./assets/logo.png";
 import userIcon from "./assets/person.png"; 
 import lockIcon from "./assets/lock.png"; 
@@ -7,6 +8,7 @@ import lockIcon from "./assets/lock.png";
 function App() {
   const [usuario, setUsuario] = useState("");
   const [contrasena, setContrasena] = useState("");
+  const navigate = useNavigate(); // Hook para navegación
 
   const iniciarSesion = async () => {
     try {
@@ -60,6 +62,8 @@ function App() {
         </div>
 
         <button className="login-button" onClick={iniciarSesion}>Ingresar</button>
+
+       
       </header>
     </div>
   );
