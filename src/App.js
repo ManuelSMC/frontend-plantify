@@ -1,29 +1,34 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Importamos useNavigate
+import { useNavigate } from "react-router-dom";
 import "./App.css";
 import logo from "./assets/logo.png";
-import userIcon from "./assets/person.png"; 
-import lockIcon from "./assets/lock.png"; 
+import userIcon from "./assets/person.png";
+import lockIcon from "./assets/lock.png";
 
 function App() {
-  const [usuario, setUsuario] = useState("");
-  const [contrasena, setContrasena] = useState("");
-  const navigate = useNavigate(); // Hook para navegación
+  const [correo, setUsuario] = useState("");
+  const [contraseña, setContrasena] = useState("");
+  const navigate = useNavigate();
 
   const iniciarSesion = async () => {
     try {
-      const respuesta = await fetch("https://www.url.com", {
+      //solicitud POST al backend
+      const respuesta = await fetch("https://plantify.jamadev.com/usuarios/procesarLogin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ usuario, contrasena }),
+        body: JSON.stringify({ correo: correo, contraseña: contraseña }), // enviar los datos al backend
       });
-      
-      const datos = await respuesta.json();
+
+      const datos = await respuesta.json(); // Parseamos la respuesta a JSON
+
       if (respuesta.ok) {
+        // Si la respuesta es OK, guardamos los datos del usuario en el localStorage o manejamos sesión
         alert("Inicio de sesión exitoso");
+        navigate("/dashboard"); // Redirigimos al dashboard
       } else {
+        // Si el login falla, mostramos un mensaje de error
         alert("Error: " + datos.message);
       }
     } catch (error) {
@@ -38,32 +43,30 @@ function App() {
         <br />
         <img src={logo} alt="Logo" className="logo" />
         <br />
-        
+
         <div className="input-container">
           <img src={userIcon} alt="Usuario" className="input-icon" />
-          <input 
-            type="text" 
-            placeholder="Usuario" 
+          <input
+            type="text"
+            placeholder="Usuario"
             className="input-field"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
+            value={correo}
+            onChange={(e) => setUsuario(e.target.value)} // Actualiza el estado del usuario
           />
         </div>
 
         <div className="password-container">
           <img src={lockIcon} alt="Contraseña" className="password-icon" />
-          <input 
-            type="password" 
-            placeholder="Contraseña" 
+          <input
+            type="password"
+            placeholder="Contraseña"
             className="input-field"
-            value={contrasena}
-            onChange={(e) => setContrasena(e.target.value)}
+            value={contraseña}
+            onChange={(e) => setContrasena(e.target.value)} // Actualiza el estado de la contraseña
           />
         </div>
 
         <button className="login-button" onClick={iniciarSesion}>Ingresar</button>
-
-       
       </header>
     </div>
   );
