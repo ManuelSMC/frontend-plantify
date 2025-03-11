@@ -6,33 +6,34 @@ import userIcon from "./assets/person.png";
 import lockIcon from "./assets/lock.png";
 
 function App() {
-  const [correo, setUsuario] = useState("");
-  const [contraseña, setContrasena] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const iniciarSesion = async () => {
     try {
-      //solicitud POST al backend
-      const respuesta = await fetch("https://plantify.jamadev.com/index.php/login", {
+      const respuesta = await fetch("http://localhost/backendPlantify/index.php/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ correo: correo, contraseña: contraseña }), // enviar los datos al backend
+        body: JSON.stringify({
+          correo: correo,
+          password: password,
+        }),
       });
 
-      const datos = await respuesta.json(); // Parseamos la respuesta a JSON
+      const datos = await respuesta.json();
 
       if (respuesta.ok) {
-        // Si la respuesta es OK, guardamos los datos del usuario en el localStorage o manejamos sesión
         alert("Inicio de sesión exitoso");
-        navigate("/dashboard"); // Redirigimos al dashboard
+        localStorage.setItem("usuario", JSON.stringify(datos.usuario));
+        navigate("/dashboard");
       } else {
-        // Si el login falla, mostramos un mensaje de error
         alert("Error: " + datos.message);
       }
     } catch (error) {
-      alert("Error de conexión");
+      alert("Error de conexión: " + error.message);
     }
   };
 
@@ -48,25 +49,27 @@ function App() {
           <img src={userIcon} alt="Usuario" className="input-icon" />
           <input
             type="text"
-            placeholder="Usuario"
+            placeholder="Correo"
             className="input-field"
             value={correo}
-            onChange={(e) => setUsuario(e.target.value)} // Actualiza el estado del usuario
+            onChange={(e) => setCorreo(e.target.value)}
           />
         </div>
 
         <div className="password-container">
-          <img src={lockIcon} alt="Contraseña" className="password-icon" />
+          <img src={lockIcon} alt="password" className="password-icon" />
           <input
             type="password"
-            placeholder="Contraseña"
+            placeholder="password"
             className="input-field"
-            value={contraseña}
-            onChange={(e) => setContrasena(e.target.value)} // Actualiza el estado de la contraseña
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
-        <button className="login-button" onClick={iniciarSesion}>Ingresar</button>
+        <button className="login-button" onClick={iniciarSesion}>
+          Ingresar
+        </button>
       </header>
     </div>
   );
