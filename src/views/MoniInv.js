@@ -29,8 +29,8 @@ const plantas = [
 function MoniInv() {
   const navigate = useNavigate();
 
-  const handleRedirect = (id) => {
-    navigate(`/estadoplanta/${id}`);
+  const handleRedirect = () => {
+    navigate(`/PlantaEstado`);
   };
 
   return (

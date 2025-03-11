@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { styles } from "../styles/UsuariosStyles";
-import ToggleSwitch from "../components/ToggleSwitch"; // Importamos el switch
+import ToggleSwitch from "../components/ToggleSwitch";
+import ModalEditar from "../components/ModalEditar"; // Importamos el modal
 
 function Usuarios() {
-  // Datos de ejemplo (puedes reemplazar con datos de tu API)
+  // Datos de ejemplo
   const [usuarios, setUsuarios] = useState([
     {
       id: 1,
@@ -34,23 +35,35 @@ function Usuarios() {
     },
   ]);
 
-  // Función para cambiar el estado del usuario
+  // Estado para modal de edición
+  const [modalOpen, setModalOpen] = useState(false);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+
+  // Función para cambiar estado del usuario
   const toggleEstatus = (index) => {
     const updatedUsuarios = [...usuarios];
     updatedUsuarios[index].estatus = !updatedUsuarios[index].estatus;
     setUsuarios(updatedUsuarios);
   };
 
-  // Función para editar usuario
-  const editarUsuario = (id) => {
-    alert(`Editar usuario con ID: ${id}`);
-    // Aquí puedes agregar lógica para abrir un modal o redirigir a otra página de edición.
+  // Función para abrir modal de edición
+  const editarUsuario = (usuario) => {
+    setUsuarioSeleccionado(usuario);
+    setModalOpen(true);
+  };
+
+  // Función para guardar cambios del usuario editado
+  const guardarUsuario = (usuarioActualizado) => {
+    const updatedUsuarios = usuarios.map((u) =>
+      u.id === usuarioActualizado.id ? usuarioActualizado : u
+    );
+    setUsuarios(updatedUsuarios);
   };
 
   // Función para agregar usuario
   const agregarUsuario = () => {
     alert("Agregar nuevo usuario");
-    // Aquí puedes agregar lógica para abrir un modal o redirigir a otra página de creación.
+    // Aquí podrías abrir otro modal o redirigir a otro formulario
   };
 
   return (
@@ -61,34 +74,40 @@ function Usuarios() {
           Agregar Usuario
         </button>
       </div>
+
       <table style={styles.table}>
         <thead>
           <tr style={styles.row}>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Número</th>
-            <th>División</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th style={styles.tableHeader}>Nombre</th>
+            <th style={styles.tableHeader}>Correo</th>
+            <th style={styles.tableHeader}>Número</th>
+            <th style={styles.tableHeader}>División</th>
+            <th style={styles.tableHeader}>Tipo</th>
+            <th style={styles.tableHeader}>Estado</th>
+            <th style={styles.tableHeader}>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {usuarios.map((usuario, index) => (
             <tr key={usuario.id} style={styles.row}>
-              <td>{usuario.nombre}</td>
-              <td>{usuario.correo}</td>
-              <td>{usuario.numero}</td>
-              <td>{usuario.division}</td>
-              <td>{usuario.tipo}</td>
-              <td style={styles.switchContainer}>
-                <ToggleSwitch
-                  checked={usuario.estatus}
-                  onChange={() => toggleEstatus(index)}
-                />
+              <td style={styles.tableCell}>{usuario.nombre}</td>
+              <td style={styles.tableCell}>{usuario.correo}</td>
+              <td style={styles.tableCell}>{usuario.numero}</td>
+              <td style={styles.tableCell}>{usuario.division}</td>
+              <td style={styles.tableCell}>{usuario.tipo}</td>
+              <td style={styles.tableCell}>
+                <div style={styles.switchContainer}>
+                  <ToggleSwitch
+                    checked={usuario.estatus}
+                    onChange={() => toggleEstatus(index)}
+                  />
+                </div>
               </td>
-              <td>
-                <button style={styles.editButton} onClick={() => editarUsuario(usuario.id)}>
+              <td style={styles.tableCell}>
+                <button
+                  style={styles.editButton}
+                  onClick={() => editarUsuario(usuario)}
+                >
                   Editar
                 </button>
               </td>
@@ -96,6 +115,14 @@ function Usuarios() {
           ))}
         </tbody>
       </table>
+
+      {/* Modal para editar usuario */}
+      <ModalEditar
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        usuario={usuarioSeleccionado}
+        onSave={guardarUsuario}
+      />
     </div>
   );
 }

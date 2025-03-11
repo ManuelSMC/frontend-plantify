@@ -5,6 +5,8 @@ import Inicio from "./views/Inicio";
 import Usuarios from "./views/Usuarios";
 import Monitoreo from "./views/Monitoreo";
 import MoniInv from "./views/MoniInv";
+import PlantaEstado from "./views/PlantaEstado";
+
 import Notificaciones from "./views/Notificaciones";
 
 import Navbar from "./components/Navbar";
@@ -24,6 +26,7 @@ function Layout() {
         <Route path="/Monitoreo" element={<Monitoreo />} />
         <Route path="/Notificaciones" element={<Notificaciones />} />
         <Route path="/MoniInv" element={<MoniInv />} />
+        <Route path="/PlantaEstado" element={<PlantaEstado />} />
         {/* Puedes agregar más rutas aquí */}
       </Routes>
     </>

@@ -49,15 +49,28 @@ const styles = {
     display: "flex",
     alignItems: "center",
   },
+  imageContainer: {
+    position: "relative",
+  },
   image: {
     width: "100px",
     height: "100px",
     borderRadius: "8px",
     marginRight: "15px",
   },
+  notificationIcon: {
+    position: "absolute",
+    top: "5px",
+    right: "5px",
+    backgroundColor: "red",
+    color: "white",
+    borderRadius: "50%",
+    padding: "5px",
+    fontSize: "0.9rem",
+  },
   message: {
     fontSize: "1.2rem",
-    color: "#333",
+    fontWeight: "bold",
     flex: 1,
   },
   date: {
