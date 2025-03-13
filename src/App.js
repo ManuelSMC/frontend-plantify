@@ -5,7 +5,7 @@ import logo from "./assets/logo.png";
 import userIcon from "./assets/person.png";
 import lockIcon from "./assets/lock.png";
 
-function App() {
+function App() {  
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
