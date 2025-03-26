@@ -13,7 +13,7 @@ function App() {
 
   const iniciarSesion = async () => {
     try {
-      const respuesta = await fetch("https://plantify.jamadev.com/index.php/login", {
+      const respuesta = await fetch("http://localhost/backendPlantify/index.php/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

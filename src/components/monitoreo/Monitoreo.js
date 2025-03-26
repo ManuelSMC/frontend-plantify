@@ -75,7 +75,7 @@ function Monitoreo() {
 
   const guardarDatosEnBackend = async (datos) => {
     try {
-      const respuesta = await fetch("https://plantify.jamadev.com/index.php/sensores/guardar", {
+      const respuesta = await fetch("http://localhost/backendPlantify/index.php/sensores/guardar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

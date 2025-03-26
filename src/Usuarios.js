@@ -82,10 +82,10 @@ function Usuarios() {
     return ""; // Si pasa todas las validaciones
   };
 
+  // src/components/Usuarios.js (fragmento relevante)
   const handleAddUsuario = async (e) => {
     e.preventDefault();
 
-    // Validar la contraseña antes de enviar
     const error = validarContraseña(usuarioAdd.contraseña);
     if (error) {
       setErrorContraseña(error);
@@ -94,25 +94,30 @@ function Usuarios() {
 
     try {
       const response = await addUsuario(usuarioAdd);
-      setUsuarios([...usuarios, response]);
-      setModalAddVisible(false);
-      setUsuarioAdd({
-        nombre: "",
-        apellido: "",
-        correo: "",
-        telefono: "",
-        tipo: 0,
-        estatus: 1,
-        contraseña: "",
-      });
-      setErrorContraseña(""); // Limpiar error
-      setMessage("Usuario agregado exitosamente");
+      // Verificamos que response tenga id_usuario
+      if (response && response.id_usuario) {
+        setUsuarios([...usuarios, response]); // Agregamos directamente response
+        setModalAddVisible(false);
+        setUsuarioAdd({
+          nombre: "",
+          apellido: "",
+          correo: "",
+          telefono: "",
+          tipo: 0,
+          estatus: 1,
+          contraseña: "",
+        });
+        setErrorContraseña("");
+        setMessage("Usuario agregado exitosamente");
+      } else {
+        throw new Error("Respuesta del servidor inválida");
+      }
     } catch (error) {
-      console.error("Error al agregar usuario:", error);
-      setMessage("Error al agregar el usuario: " + error.message);
+      console.error("Error al agregar usuario:", error.message);
+      setMessage(`Error al agregar usuario: ${error.message}`);
     }
   };
-
+  
   const handleChangeEdit = (e) => {
     const { name, value } = e.target;
     setUsuarioEdit({
