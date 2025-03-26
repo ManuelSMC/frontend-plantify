@@ -1,27 +1,24 @@
-import React from "react";
-import { Link } from "react-router-dom"; // Importa Link
-import "./App.css"; // Asegúrate de que el archivo CSS esté correcto
-import logo from "./assets/logo.png"; 
+// src/components/Presentacion.js
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar"; // Importar el Navbar
+import "./App.css";
+import logo from "./assets/logo.png";
 
 function Presentacion() {
+  const navigate = useNavigate();
+
+  // Validar autenticación al cargar el componente
+  useEffect(() => {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario) {
+      navigate("/"); // Redirigir al login si no hay usuario
+    }
+  }, [navigate]);
+
   return (
     <div>
-      <nav className="navbar">
-        <div className="container">
-          <div className="brand">
-            <img src={logo} alt="Logo" className="logo2" />
-            <span className="brand-name">Plantify</span>
-          </div>
-          <ul className="nav-links">
-            <li><Link to="/presentacion">Inicio</Link></li> 
-            <li><Link to="/usuarios">Usuarios</Link></li>
-            <li><a href="#">Notificaciones</a></li>
-            <li><a href="#">Monitoreo</a></li>
-          </ul>
-        </div>
-      </nav>
-
-      {/* Sección principal con dos columnas */}
+      <Navbar /> {/* Llamar al componente Navbar */}
       <div className="container presentacion">
         <div className="texto">
           <h2>¿Quiénes somos?</h2>
@@ -35,7 +32,7 @@ function Presentacion() {
         </div>
         <div className="logo-container">
           <img src={logo} alt="Logo" className="logo-grande" />
-          <span className="logo-text">Plantify</span> 
+          <span className="logo-text">Plantify</span>
         </div>
       </div>
     </div>

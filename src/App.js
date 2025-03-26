@@ -8,6 +8,7 @@ import lockIcon from "./assets/lock.png";
 function App() {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // Estado para manejar errores
   const navigate = useNavigate();
 
   const iniciarSesion = async () => {
@@ -25,15 +26,15 @@ function App() {
 
       const datos = await respuesta.json();
 
-      if (respuesta.ok) {
-        alert("Inicio de sesión exitoso");
+      if (respuesta.ok && datos.status === "success") {
         localStorage.setItem("usuario", JSON.stringify(datos.usuario));
-        navigate("/dashboard");
+        setErrorMessage(""); // Limpiar mensaje de error
+        navigate("/presentacion");
       } else {
-        alert("Error: " + datos.message);
+        setErrorMessage(datos.message); // Mostrar mensaje del backend (ej. "Ya existe una sesión activa")
       }
     } catch (error) {
-      alert("Error de conexión: " + error.message);
+      setErrorMessage("Error de conexión: " + error.message);
     }
   };
 
@@ -44,6 +45,21 @@ function App() {
         <br />
         <img src={logo} alt="Logo" className="logo" />
         <br />
+
+        {errorMessage && (
+          <div
+            style={{
+              padding: "10px",
+              marginBottom: "20px",
+              backgroundColor: "#F8D7DA",
+              color: "#721C24",
+              borderRadius: "5px",
+              textAlign: "center",
+            }}
+          >
+            {errorMessage}
+          </div>
+        )}
 
         <div className="input-container">
           <img src={userIcon} alt="Usuario" className="input-icon" />
@@ -60,7 +76,7 @@ function App() {
           <img src={lockIcon} alt="password" className="password-icon" />
           <input
             type="password"
-            placeholder="password"
+            placeholder="Contraseña"
             className="input-field"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
