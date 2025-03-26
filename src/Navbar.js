@@ -10,7 +10,7 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost/backendPlantify/index.php/logout", {
+      await fetch("https://plantify.jamadev.com/index.php/logout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

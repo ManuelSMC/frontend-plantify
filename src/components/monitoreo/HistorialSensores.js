@@ -23,8 +23,8 @@ function HistorialSensores() {
     const fetchHistorial = async () => {
       try {
         const url = fechaFiltro
-          ? `http://localhost/backendPlantify/index.php/sensores/historial?fecha=${fechaFiltro}`
-          : "http://localhost/backendPlantify/index.php/sensores/historial";
+          ? `https://plantify.jamadev.com/index.php/sensores/historial?fecha=${fechaFiltro}`
+          : "https://plantify.jamadev.com/index.php/sensores/historial";
         const respuesta = await fetch(url);
         if (!respuesta.ok) throw new Error("Error al obtener el historial");
         const data = await respuesta.json();

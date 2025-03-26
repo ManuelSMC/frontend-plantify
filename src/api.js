@@ -1,5 +1,5 @@
 // src/api.js
-const API_URL = "http://localhost/backendPlantify/index.php/usuarios";
+const API_URL = "https://plantify.jamadev.com/index.php/usuarios";
 
 export const fetchUsuarios = async () => {
   const response = await fetch(API_URL, {
