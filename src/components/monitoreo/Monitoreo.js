@@ -71,10 +71,11 @@ function Monitoreo() {
     );
 
     return () => unsubscribe();
-  }, [esCargaInicial, datosPrevios]); // Dependencias actualizadas
+  }, [esCargaInicial, datosPrevios]);
 
   const guardarDatosEnBackend = async (datos) => {
     try {
+      //const respuesta = await fetch("https://plantify.jamadev.com/index.php/sensores/guardar", {
       const respuesta = await fetch("https://plantify.jamadev.com/index.php/sensores/guardar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -84,7 +85,7 @@ function Monitoreo() {
           humedad_suelo: datos.HumedadSuelo,
           temperaturaDHT11: datos.TemperaturaDHT11,
           temperaturaDS18B20: datos.TemperaturaDS18B20,
-          plaga: false, // Puedes agregar lógica para determinar plaga
+          plaga: false,
         }),
       });
       if (!respuesta.ok) console.error("Error al guardar en el backend:", await respuesta.text());

@@ -73,7 +73,7 @@ function Navbar() {
           </li>
         )}
         <li>
-          <Link to="#" style={{ color: "white", textDecoration: "none" }}>
+          <Link to="/historial-notificaciones" style={{ color: "white", textDecoration: "none" }}>
             Notificaciones
           </Link>
         </li>
