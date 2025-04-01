@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals';
 import Monitoreo from "./components/monitoreo/Monitoreo";
 import HistorialSensores from "./components/monitoreo/HistorialSensores";
 import HistorialNotificaciones from "./components/notificaciones/HistorialNotificaciones";
+import Reportes from "./components/reportes/Reportes";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -21,6 +22,7 @@ root.render(
         <Route path="/monitoreo" element={<Monitoreo />} />
         <Route path="/historial-sensores" element={<HistorialSensores />} />
         <Route path="/historial-notificaciones" element={<HistorialNotificaciones />} />
+        <Route path="/reportes" element={<Reportes />} />
         
       </Routes>
     </BrowserRouter>

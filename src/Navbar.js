@@ -83,6 +83,11 @@ function Navbar() {
           </Link>
         </li>
         <li>
+          <Link to="/reportes" style={{ color: "white", textDecoration: "none" }}>
+            Reportes
+          </Link>
+        </li>
+        <li>
           <button
             onClick={handleLogout}
             style={{
