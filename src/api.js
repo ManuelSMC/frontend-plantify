@@ -38,7 +38,7 @@ export const addUsuario = async (usuario) => {
 export const updateUsuario = async (usuario) => {
   const token = localStorage.getItem("token");
   const response = await fetch(`${API_URL}/update`, {
-    method: "POST", 
+    method: "POST", //Post
     headers: { 
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
