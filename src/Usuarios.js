@@ -53,8 +53,17 @@ function Usuarios() {
     setModalEditVisible(true);
   };
 
+
+  
   const handleSaveChanges = async (e) => {
     e.preventDefault();
+  
+    const errores = validarCampos(usuarioEdit, true); // true indica que es edición
+    if (errores) {
+      setMessage(errores);
+      return;
+    }
+  
     try {
       const updatedUser = await updateUsuario(usuarioEdit);
       setUsuarios(
@@ -66,37 +75,87 @@ function Usuarios() {
       setMessage("Usuario actualizado exitosamente");
     } catch (error) {
       console.error("Error al actualizar usuario:", error);
-      setMessage("Error al actualizar el usuario");
+      setMessage(`Error al actualizar el usuario: ${error.message}`);
     }
   };
 
-  // Validación de la contraseña
+  const validarCorreo = (correo) => {
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    return emailRegex.test(correo) ? "" : "El correo debe tener el formato xxx@x.x";
+  };
+
   const validarContraseña = (contraseña) => {
     const minLength = contraseña.length >= 8;
     const tieneNumero = /\d/.test(contraseña);
     const tieneEspecial = /[!@#$%^&*(),.?":{}|<>]/.test(contraseña);
+    const tieneMayuscula = /[A-Z]/.test(contraseña); // Nueva validación: al menos una mayúscula
 
-    if (!minLength) return "La contraseña debe tener al menos 8 caracteres.";
-    if (!tieneNumero) return "La contraseña debe contener al menos un número.";
-    if (!tieneEspecial) return "La contraseña debe contener al menos un carácter especial (ej. !@#$%^&*).";
-    return ""; // Si pasa todas las validaciones
+    let errores = [];
+    if (!minLength) errores.push("La contraseña debe tener al menos 8 caracteres.");
+    if (!tieneNumero) errores.push("La contraseña debe contener al menos un número.");
+    if (!tieneEspecial) errores.push("La contraseña debe contener al menos un carácter especial (ej. !@#$%^&*).");
+    if (!tieneMayuscula) errores.push("La contraseña debe contener al menos una mayúscula.");
+
+    return errores.length > 0 ? errores.join(" ") : "";
+  };
+
+
+  const validarCampos = (data, isEditing = false) => {
+    let errores = [];
+
+    if (!data.nombre || data.nombre.trim() === "") {
+      errores.push("El nombre es obligatorio.");
+    }
+
+    if (!data.apellido || data.apellido.trim() === "") {
+      errores.push("El apellido es obligatorio.");
+    }
+
+    if (!data.correo || data.correo.trim() === "") {
+      errores.push("El correo es obligatorio.");
+    } else {
+      const errorCorreo = validarCorreo(data.correo);
+      if (errorCorreo) errores.push(errorCorreo);
+    }
+
+    if (!isEditing && (!data.contraseña || data.contraseña.trim() === "")) { // Solo para agregar
+      errores.push("La contraseña es obligatoria.");
+    } else if (!isEditing) { // Validar contraseña solo si se está agregando
+      const errorContraseña = validarContraseña(data.contraseña);
+      if (errorContraseña) errores.push(errorContraseña);
+    }
+
+    if (!data.telefono || data.telefono.trim() === "") {
+      errores.push("El teléfono es obligatorio.");
+    } else if (!/^\d+$/.test(data.telefono)) { // Solo números
+      errores.push("El teléfono debe contener solo números.");
+    }
+
+    if (typeof data.tipo !== "number" || (data.tipo !== 0 && data.tipo !== 1)) {
+      errores.push("El tipo de usuario es inválido.");
+    }
+
+    if (typeof data.estatus !== "number" || (data.estatus !== 0 && data.estatus !== 1)) {
+      errores.push("El estatus es inválido.");
+    }
+
+    return errores.length > 0 ? errores.join(" ") : "";
   };
 
   // src/components/Usuarios.js (fragmento relevante)
   const handleAddUsuario = async (e) => {
     e.preventDefault();
 
-    const error = validarContraseña(usuarioAdd.contraseña);
-    if (error) {
-      setErrorContraseña(error);
+    const errores = validarCampos(usuarioAdd);
+    if (errores) {
+      setErrorContraseña(errores);
       return;
     }
 
     try {
       const response = await addUsuario(usuarioAdd);
-      // Verificamos que response tenga id_usuario
       if (response && response.id_usuario) {
-        setUsuarios([...usuarios, response]); // Agregamos directamente response
+        setUsuarios([...usuarios, response]);
         setModalAddVisible(false);
         setUsuarioAdd({
           nombre: "",
@@ -117,14 +176,6 @@ function Usuarios() {
       setMessage(`Error al agregar usuario: ${error.message}`);
     }
   };
-  
-  const handleChangeEdit = (e) => {
-    const { name, value } = e.target;
-    setUsuarioEdit({
-      ...usuarioEdit,
-      [name]: name === "tipo" || name === "estatus" ? parseInt(value, 10) : value,
-    });
-  };
 
   const handleChangeAdd = (e) => {
     const { name, value } = e.target;
@@ -132,10 +183,37 @@ function Usuarios() {
       ...usuarioAdd,
       [name]: name === "tipo" || name === "estatus" ? parseInt(value, 10) : value,
     });
-    // Validar contraseña en tiempo real mientras se escribe
-    if (name === "contraseña") {
-      const error = validarContraseña(value);
-      setErrorContraseña(error);
+  
+    // Validaciones en tiempo real
+    if (name === "correo") {
+      const errorCorreo = validarCorreo(value);
+      setErrorContraseña(errorCorreo || "");
+    } else if (name === "contraseña") {
+      const errorContraseña = validarContraseña(value);
+      setErrorContraseña(errorContraseña);
+    } else if (name === "telefono" && value && !/^\d*$/.test(value)) {
+      setErrorContraseña("El teléfono debe contener solo números.");
+    } else {
+      setErrorContraseña(""); // Limpiar errores si no hay problemas
+    }
+  };
+  
+  // Similarmente, actualiza handleChangeEdit si es necesario
+  const handleChangeEdit = (e) => {
+    const { name, value } = e.target;
+    setUsuarioEdit({
+      ...usuarioEdit,
+      [name]: name === "tipo" || name === "estatus" ? parseInt(value, 10) : value,
+    });
+  
+    // Validación en tiempo real para edición (si aplica)
+    if (name === "correo") {
+      const errorCorreo = validarCorreo(value);
+      setMessage(errorCorreo || "");
+    } else if (name === "telefono" && value && !/^\d*$/.test(value)) {
+      setMessage("El teléfono debe contener solo números.");
+    } else {
+      setMessage(""); // Limpiar mensajes si no hay errores
     }
   };
 
