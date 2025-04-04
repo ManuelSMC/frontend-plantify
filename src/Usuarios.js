@@ -24,7 +24,14 @@ function Usuarios() {
   const [errorContraseña, setErrorContraseña] = useState(""); // Estado para mensaje de error de contraseña
 
   // Validar autenticación y tipo de usuario al cargar el componente
-  
+  useEffect(() => {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario) {
+      navigate("/"); // Redirigir al login si no hay usuario
+    } else if (usuario.tipo !== 1) {
+      navigate("/presentacion"); // Redirigir a presentación si no es administrador
+    }
+  }, [navigate]);
 
   // Fetch usuarios
   useEffect(() => {
