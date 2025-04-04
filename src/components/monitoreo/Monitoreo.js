@@ -15,9 +15,15 @@ function Monitoreo() {
     TemperaturaDHT11: null,
     TemperaturaDS18B20: null,
   });
-  const [datosPrevios, setDatosPrevios] = useState(null); // Estado para los datos previos
-  const [esCargaInicial, setEsCargaInicial] = useState(true); // Bandera para carga inicial
+  const [datosPrevios, setDatosPrevios] = useState(null);
+  const [esCargaInicial, setEsCargaInicial] = useState(true);
   const [error, setError] = useState(null);
+  // Nuevo estado para las predicciones
+  const [predicciones, setPredicciones] = useState({
+    probabilidad_riego: null,
+    probabilidad_fumigacion: null,
+  });
+  const [prediccionesError, setPrediccionesError] = useState(null);
 
   // Validar autenticación
   useEffect(() => {
@@ -27,7 +33,7 @@ function Monitoreo() {
     }
   }, [navigate]);
 
-  // Escuchar cambios en Firebase y enviar al backend solo si cambian los datos
+  // Escuchar cambios en Firebase
   useEffect(() => {
     const datosRef = ref(database, "/");
     const unsubscribe = onValue(
@@ -43,19 +49,15 @@ function Monitoreo() {
             TemperaturaDS18B20: data.TemperaturaDS18B20 || 0,
           };
 
-          // Convertir a string para comparar fácilmente
           const datosActualString = JSON.stringify(nuevosDatos);
           const datosPreviosString = JSON.stringify(datosPrevios);
 
-          // Actualizar la interfaz siempre
           setDatos(nuevosDatos);
 
-          // Solo guardar en el backend si no es la carga inicial y los datos cambiaron
           if (!esCargaInicial && datosActualString !== datosPreviosString) {
             guardarDatosEnBackend(nuevosDatos);
           }
 
-          // Actualizar datosPrevios y marcar la carga inicial como completada
           setDatosPrevios(nuevosDatos);
           if (esCargaInicial) setEsCargaInicial(false);
 
@@ -73,9 +75,38 @@ function Monitoreo() {
     return () => unsubscribe();
   }, [esCargaInicial, datosPrevios]);
 
+  // Obtener predicciones desde la API
+  useEffect(() => {
+    const fetchPredicciones = async () => {
+      try {
+        const respuesta = await fetch("https://plantify.jamadev.com/index.php/prediction", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!respuesta.ok) {
+          throw new Error("Error al obtener las predicciones: " + respuesta.statusText);
+        }
+        const resultado = await respuesta.json();
+        if (resultado.status === "success") {
+          setPredicciones({
+            probabilidad_riego: resultado.data.probabilidad_riego,
+            probabilidad_fumigacion: resultado.data.probabilidad_fumigacion,
+          });
+          setPrediccionesError(null);
+        } else {
+          throw new Error(resultado.message || "Respuesta inválida de la API");
+        }
+      } catch (error) {
+        console.error("Error al obtener predicciones:", error);
+        setPrediccionesError("No se pudieron cargar las predicciones");
+      }
+    };
+
+    fetchPredicciones();
+  }, []); // Se ejecuta solo al montar el componente
+
   const guardarDatosEnBackend = async (datos) => {
     try {
-      //const respuesta = await fetch("https://plantify.jamadev.com/index.php/sensores/guardar", {
       const respuesta = await fetch("https://plantify.jamadev.com/index.php/sensores/guardar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -115,6 +146,14 @@ function Monitoreo() {
   const labelStyle = {
     fontSize: "1rem",
     color: "#333",
+  };
+
+  const predictionStyle = {
+    marginTop: "20px",
+    padding: "15px",
+    backgroundColor: "#F5F5F5",
+    borderRadius: "8px",
+    textAlign: "center",
   };
 
   return (
@@ -209,6 +248,29 @@ function Monitoreo() {
                 : "Cargando..."}
             </div>
           </div>
+        </div>
+
+        {/* Sección de Predicciones */}
+        <div style={predictionStyle}>
+          <h3 style={{ color: "#333", marginBottom: "10px" }}>
+            Predicciones para Mañana
+          </h3>
+          {prediccionesError ? (
+            <p style={{ color: "#721C24" }}>{prediccionesError}</p>
+          ) : (
+            <>
+              <p style={{ fontSize: "1.2rem", color: "#285A43" }}>
+                Probabilidad de riego: {predicciones.probabilidad_riego !== null
+                  ? `${predicciones.probabilidad_riego}%`
+                  : "Cargando..."}
+              </p>
+              <p style={{ fontSize: "1.2rem", color: "#285A43" }}>
+                Probabilidad de fumigación: {predicciones.probabilidad_fumigacion !== null
+                  ? `${predicciones.probabilidad_fumigacion}%`
+                  : "Cargando..."}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
