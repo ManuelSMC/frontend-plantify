@@ -1,23 +1,22 @@
+// src/components/Reportes.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Navbar";
 import "../../App.css";
-import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import logo from "../../assets/logo.png"; // Importar el logo
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
 // Registrar componentes de Chart.js
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function Reportes() {
   const navigate = useNavigate();
-  const [datosSensores, setDatosSensores] = useState([]);
-  const [datosNotificaciones, setDatosNotificaciones] = useState([]);
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [fechaFin, setFechaFin] = useState("");
+  const [historial, setHistorial] = useState([]);
   const [error, setError] = useState(null);
+  const [dailyData, setDailyData] = useState({});
+  const [weeklyData, setWeeklyData] = useState({});
+  const [monthlyData, setMonthlyData] = useState({});
+  const [annualData, setAnnualData] = useState({});
 
   // Validar autenticación
   useEffect(() => {
@@ -27,294 +26,221 @@ function Reportes() {
     }
   }, [navigate]);
 
-  // Obtener datos del backend
-  const fetchDatos = async () => {
-    try {
-      if (!fechaInicio || !fechaFin) {
-        setError("Por favor selecciona un rango de fechas.");
-        return;
+  // Obtener historial desde el backend
+  useEffect(() => {
+    const fetchHistorial = async () => {
+      try {
+        const url = "https://plantify.jamadev.com/index.php/sensores/historial";
+        const respuesta = await fetch(url);
+        if (!respuesta.ok) throw new Error("Error al obtener el historial");
+        const data = await respuesta.json();
+        setHistorial(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error:", err);
+        setError("No se pudo cargar el historial de sensores");
       }
-      const urlSensores = `https://plantify.jamadev.com/index.php/sensores/reporte?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
-      const urlNotificaciones = `https://plantify.jamadev.com/index.php/notificaciones/reporte?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+    };
+    fetchHistorial();
+  }, []);
 
-      const [respuestaSensores, respuestaNotificaciones] = await Promise.all([
-        fetch(urlSensores),
-        fetch(urlNotificaciones),
-      ]);
+  // Procesar datos para agregados diarios, semanales, mensuales y anuales
+  useEffect(() => {
+    if (historial.length > 0) {
+      const daily = {};
+      const weekly = {};
+      const monthly = {};
+      const annual = {};
 
-      if (!respuestaSensores.ok || !respuestaNotificaciones.ok) {
-        throw new Error("Error al obtener los datos para el reporte");
-      }
+      historial.forEach((d) => {
+        const date = new Date(d.fecha);
+        const dayKey = date.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" });
+        const weekKey = `${date.getFullYear()}-W${Math.floor((date.getDate() - 1) / 7) + 1}`;
+        const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+        const yearKey = `${date.getFullYear()}`;
 
-      const sensores = await respuestaSensores.json();
-      const notificaciones = await respuestaNotificaciones.json();
+        // Inicializar si no existe
+        [daily, weekly, monthly, annual].forEach((agg, index) => {
+          const key = [dayKey, weekKey, monthKey, yearKey][index];
+          if (!agg[key]) {
+            agg[key] = {
+              calidad_aire: [],
+              humedad: [],
+              humedad_suelo: [],
+              temperaturaDHT11: [],
+              temperaturaDS18B20: [],
+              plaga: [], // Para plaga, usaremos promedio (fracción de detecciones)
+            };
+          }
+        });
 
-      // Depuración: Inspeccionar los datos recibidos
-      console.log("Datos de sensores:", sensores);
+        // Agregar valores (parsear números)
+        daily[dayKey].calidad_aire.push(Number(d.calidad_aire));
+        daily[dayKey].humedad.push(Number(d.humedad));
+        daily[dayKey].humedad_suelo.push(Number(d.humedad_suelo));
+        daily[dayKey].temperaturaDHT11.push(Number(d.temperaturaDHT11));
+        daily[dayKey].temperaturaDS18B20.push(Number(d.temperaturaDS18B20));
+        daily[dayKey].plaga.push(Number(d.plaga));
 
-      setDatosSensores(sensores);
-      setDatosNotificaciones(notificaciones);
-      setError(null);
-    } catch (err) {
-      console.error("Error:", err);
-      setError("No se pudieron cargar los datos para el reporte");
+        weekly[weekKey].calidad_aire.push(Number(d.calidad_aire));
+        weekly[weekKey].humedad.push(Number(d.humedad));
+        weekly[weekKey].humedad_suelo.push(Number(d.humedad_suelo));
+        weekly[weekKey].temperaturaDHT11.push(Number(d.temperaturaDHT11));
+        weekly[weekKey].temperaturaDS18B20.push(Number(d.temperaturaDS18B20));
+        weekly[weekKey].plaga.push(Number(d.plaga));
+
+        monthly[monthKey].calidad_aire.push(Number(d.calidad_aire));
+        monthly[monthKey].humedad.push(Number(d.humedad));
+        monthly[monthKey].humedad_suelo.push(Number(d.humedad_suelo));
+        monthly[monthKey].temperaturaDHT11.push(Number(d.temperaturaDHT11));
+        monthly[monthKey].temperaturaDS18B20.push(Number(d.temperaturaDS18B20));
+        monthly[monthKey].plaga.push(Number(d.plaga));
+
+        annual[yearKey].calidad_aire.push(Number(d.calidad_aire));
+        annual[yearKey].humedad.push(Number(d.humedad));
+        annual[yearKey].humedad_suelo.push(Number(d.humedad_suelo));
+        annual[yearKey].temperaturaDHT11.push(Number(d.temperaturaDHT11));
+        annual[yearKey].temperaturaDS18B20.push(Number(d.temperaturaDS18B20));
+        annual[yearKey].plaga.push(Number(d.plaga));
+      });
+
+      // Calcular promedios
+      const calculateAverages = (agg) => {
+        Object.keys(agg).forEach((key) => {
+          const data = agg[key];
+          agg[key] = {
+            calidad_aire: (data.calidad_aire.reduce((a, b) => a + b, 0) / data.calidad_aire.length).toFixed(2),
+            humedad: (data.humedad.reduce((a, b) => a + b, 0) / data.humedad.length).toFixed(2),
+            humedad_suelo: (data.humedad_suelo.reduce((a, b) => a + b, 0) / data.humedad_suelo.length).toFixed(2),
+            temperaturaDHT11: (data.temperaturaDHT11.reduce((a, b) => a + b, 0) / data.temperaturaDHT11.length).toFixed(2),
+            temperaturaDS18B20: (data.temperaturaDS18B20.reduce((a, b) => a + b, 0) / data.temperaturaDS18B20.length).toFixed(2),
+            plaga: (data.plaga.reduce((a, b) => a + b, 0) / data.plaga.length).toFixed(2), // Fracción de detecciones
+          };
+        });
+        return agg;
+      };
+
+      setDailyData(calculateAverages(daily));
+      setWeeklyData(calculateAverages(weekly));
+      setMonthlyData(calculateAverages(monthly));
+      setAnnualData(calculateAverages(annual));
     }
-  };
+  }, [historial]);
 
-  // Configuración de las gráficas
-  const chartData = {
-    labels: datosSensores.map((d) => new Date(d.fecha).toLocaleString("es-MX", { timeZone: "America/Mexico_City" })),
+  // Función para generar datos de gráfica de barras
+  const getBarChartData = (aggData) => ({
+    labels: Object.keys(aggData).sort(), // Ordenar cronológicamente
     datasets: [
       {
-        label: "Calidad del Aire",
-        data: datosSensores.map((d) => d.calidad_aire),
-        borderColor: "#FF6384",
-        fill: false,
-        tension: 0.1,
+        label: "Calidad del Aire (Promedio)",
+        data: Object.values(aggData).map((p) => p.calidad_aire),
+        backgroundColor: "rgba(59, 130, 246, 0.8)", // Azul moderno
+        borderColor: "rgba(59, 130, 246, 1)",
+        borderWidth: 1,
       },
       {
-        label: "Humedad DHT11 (%)",
-        data: datosSensores.map((d) => d.humedad),
-        borderColor: "#36A2EB",
-        fill: false,
-        tension: 0.1,
+        label: "Humedad del Aire (%) (Promedio)",
+        data: Object.values(aggData).map((p) => p.humedad),
+        backgroundColor: "rgba(16, 185, 129, 0.8)", // Verde esmeralda
+        borderColor: "rgba(16, 185, 129, 1)",
+        borderWidth: 1,
       },
       {
-        label: "Humedad Suelo (%)",
-        data: datosSensores.map((d) => d.humedad_suelo),
-        borderColor: "#FFCE56",
-        fill: false,
-        tension: 0.1,
+        label: "Humedad del Suelo (%) (Promedio)",
+        data: Object.values(aggData).map((p) => p.humedad_suelo),
+        backgroundColor: "rgba(245, 158, 11, 0.8)", // Ámbar
+        borderColor: "rgba(245, 158, 11, 1)",
+        borderWidth: 1,
       },
       {
-        label: "Temperatura DHT11 (°C)",
-        data: datosSensores.map((d) => d.temperaturaDHT11),
-        borderColor: "#4BC0C0",
-        fill: false,
-        tension: 0.1,
+        label: "Temperatura del Aire (°C) (Promedio)",
+        data: Object.values(aggData).map((p) => p.temperaturaDHT11),
+        backgroundColor: "rgba(236, 72, 153, 0.8)", // Rosa magenta
+        borderColor: "rgba(236, 72, 153, 1)",
+        borderWidth: 1,
       },
       {
-        label: "Temperatura DS18B20 (°C)",
-        data: datosSensores.map((d) => d.temperaturaDS18B20),
-        borderColor: "#9966FF",
-        fill: false,
-        tension: 0.1,
+        label: "Temperatura del Suelo (°C) (Promedio)",
+        data: Object.values(aggData).map((p) => p.temperaturaDS18B20),
+        backgroundColor: "rgba(139, 92, 246, 0.8)", // Violeta
+        borderColor: "rgba(139, 92, 246, 1)",
+        borderWidth: 1,
+      },
+      {
+        label: "Detección de Plagas (Fracción de detecciones)",
+        data: Object.values(aggData).map((p) => p.plaga),
+        backgroundColor: "rgba(234, 179, 8, 0.8)", // Amarillo
+        borderColor: "rgba(234, 179, 8, 1)",
+        borderWidth: 1,
       },
     ],
-  };
+  });
 
-  const chartOptions = {
+  const barChartOptions = (title, subtitle) => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top",
-        labels: { font: { size: 14 }, padding: 20 },
+        labels: { font: { size: 16 }, padding: 20, usePointStyle: true }, // Leyenda más clara y grande
       },
       title: {
         display: true,
-        text: "Condiciones Ambientales del Invernadero",
-        font: { size: 24, weight: "bold" },
-        padding: { top: 20, bottom: 20 },
+        text: title,
+        font: { size: 28, weight: "bold" },
+        padding: { top: 20, bottom: 10 },
       },
-      tooltip: { backgroundColor: "#285A43", titleFont: { size: 14 }, bodyFont: { size: 12 } },
+      subtitle: {
+        display: true,
+        text: subtitle,
+        font: { size: 18, style: "italic" },
+        padding: { bottom: 20 },
+      },
+      tooltip: {
+        backgroundColor: "rgba(31, 41, 55, 0.9)", // Fondo oscuro para contraste
+        titleFont: { size: 18 },
+        bodyFont: { size: 16 },
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${context.parsed.y}`, // Tooltips descriptivos
+        },
+      },
     },
     scales: {
       x: {
-        title: { display: true, text: "Fecha y Hora", font: { size: 16, weight: "bold" } },
+        title: { display: true, text: "Período de Tiempo", font: { size: 18, weight: "bold" } },
         grid: { display: false },
+        ticks: { font: { size: 14 } },
       },
       y: {
-        title: { display: true, text: "Valor", font: { size: 16, weight: "bold" } },
-        grid: { color: "#e0e0e0" },
+        title: { display: true, text: "Valor Promedio", font: { size: 18, weight: "bold" } },
+        grid: { color: "rgba(209, 213, 219, 0.5)" }, // Líneas suaves
+        ticks: { font: { size: 14 } },
       },
     },
-  };
-
-  // Generar y descargar PDF
-  const generarPDF = () => {
-    const doc = new jsPDF();
-
-    // Añadir el logo
-    const img = new Image();
-    img.src = logo;
-    doc.addImage(img, "PNG", 10, 10, 40, 40); // Ajusta las dimensiones según el tamaño del logo
-
-    // Título y subtítulo
-    doc.setFontSize(20);
-    doc.setTextColor(40, 90, 67); // Color #285A43
-    doc.text("Reporte de Condiciones Ambientales", 60, 20);
-    doc.setFontSize(16);
-    doc.text("Invernadero Inteligente - Plantify", 60, 30);
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Rango de fechas: ${fechaInicio} - ${fechaFin}`, 60, 40);
-
-    // Línea divisoria
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(40, 90, 67);
-    doc.line(10, 55, 200, 55);
-
-    // Tabla de sensores
-    doc.setFontSize(16);
-    doc.setTextColor(40, 90, 67);
-    doc.text("Datos de Sensores", 10, 65);
-    doc.setTextColor(0, 0, 0);
-    autoTable(doc, {
-      startY: 70,
-      head: [["Fecha", "Calidad Aire", "Humedad DHT11", "Humedad Suelo", "Temp DHT11", "Temp DS18B20", "Plaga"]],
-      body: datosSensores.map((d) => [
-        new Date(d.fecha).toLocaleString("es-MX", { timeZone: "America/Mexico_City" }),
-        d.calidad_aire,
-        d.humedad,
-        d.humedad_suelo,
-        d.temperaturaDHT11,
-        d.temperaturaDS18B20,
-        Number(d.plaga) === 1 ? "Sí" : "No",
-      ]),
-      styles: { fontSize: 10, cellPadding: 3, textColor: [50, 50, 50] },
-      headStyles: { fillColor: [40, 90, 67], textColor: [255, 255, 255], fontSize: 12 },
-      alternateRowStyles: { fillColor: [240, 240, 240] },
-      margin: { top: 60 },
-    });
-
-    // Tabla de notificaciones
-    const y = doc.lastAutoTable.finalY + 15;
-    doc.setFontSize(16);
-    doc.setTextColor(40, 90, 67);
-    doc.text("Notificaciones", 10, y);
-    doc.setTextColor(0, 0, 0);
-    autoTable(doc, {
-      startY: y + 5,
-      head: [["Fecha", "Notificación"]],
-      body: datosNotificaciones.map((n) => [
-        new Date(n.fecha).toLocaleString("es-MX", { timeZone: "America/Mexico_City" }),
-        n.notificacion,
-      ]),
-      styles: { fontSize: 10, cellPadding: 3, textColor: [50, 50, 50] },
-      headStyles: { fillColor: [40, 90, 67], textColor: [255, 255, 255], fontSize: 12 },
-      alternateRowStyles: { fillColor: [240, 240, 240] },
-    });
-
-    // Pie de página
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.setTextColor(150);
-      doc.text(`Página ${i} de ${pageCount}`, 190, 290, { align: "right" });
-      doc.text("Plantify © 2025", 10, 290);
-    }
-
-    doc.save(`reporte_invernadero_${fechaInicio}_a_${fechaFin}.pdf`);
-  };
+  });
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100"> {/* Fondo claro y moderno */}
       <Navbar />
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "30px 40px", backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
-        <h2 style={{ color: "#285A43", fontSize: "2.5rem", fontWeight: "bold", marginBottom: "30px", textAlign: "center" }}>
-          Reportes y Gráficas
+      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "40px 20px" }}>
+        <h2 style={{ color: "#1F2937", fontSize: "2.5rem", fontWeight: "700", marginBottom: "20px", textAlign: "center" }}>
+          Reportes de Datos de Sensores
         </h2>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "20px",
-            marginBottom: "40px",
-            backgroundColor: "#fff",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            <label style={{ fontSize: "1.2rem", color: "#333", fontWeight: "500" }}>Fecha Inicio:</label>
-            <input
-              type="date"
-              value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-              style={{
-                padding: "12px",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-                fontSize: "1rem",
-                backgroundColor: "#f9f9f9",
-                cursor: "pointer",
-              }}
-            />
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            <label style={{ fontSize: "1.2rem", color: "#333", fontWeight: "500" }}>Fecha Fin:</label>
-            <input
-              type="date"
-              value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-              style={{
-                padding: "12px",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-                fontSize: "1rem",
-                backgroundColor: "#f9f9f9",
-                cursor: "pointer",
-              }}
-            />
-          </div>
-          <button
-            onClick={fetchDatos}
-            style={{
-              padding: "12px 30px",
-              backgroundColor: "#285A43",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              fontSize: "1.1rem",
-              fontWeight: "500",
-              transition: "background-color 0.3s",
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#1e4232")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#285A43")}
-          >
-            Generar Reporte
-          </button>
-          {datosSensores.length > 0 && (
-            <button
-              onClick={generarPDF}
-              style={{
-                padding: "12px 30px",
-                backgroundColor: "#4CAF50",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "1.1rem",
-                fontWeight: "500",
-                transition: "background-color 0.3s",
-              }}
-              onMouseOver={(e) => (e.target.style.backgroundColor = "#3d8b40")}
-              onMouseOut={(e) => (e.target.style.backgroundColor = "#4CAF50")}
-            >
-              Descargar PDF
-            </button>
-          )}
-        </div>
+        <p style={{ color: "#4B5563", fontSize: "1.25rem", textAlign: "center", marginBottom: "40px" }}>
+          Aquí puedes ver los promedios de las mediciones de tus sensores agrupados por día, semana, mes y año. Cada barra representa el promedio de un indicador ambiental. Pasa el mouse sobre las barras para más detalles.
+        </p>
 
         {error && (
           <div
             style={{
-              padding: "15px",
-              marginBottom: "30px",
-              backgroundColor: "#F8D7DA",
-              color: "#721C24",
-              borderRadius: "8px",
-              width: "100%",
-              maxWidth: "600px",
+              padding: "20px",
+              marginBottom: "40px",
+              backgroundColor: "#FEE2E2",
+              color: "#B91C1C",
+              borderRadius: "12px",
               textAlign: "center",
-              fontSize: "1.1rem",
+              fontSize: "1.25rem",
+              fontWeight: "500",
               boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             }}
           >
@@ -322,20 +248,93 @@ function Reportes() {
           </div>
         )}
 
-        {datosSensores.length > 0 && (
-          <div
-            style={{
-              width: "90%",
-              maxWidth: "1200px",
-              height: "600px",
-              marginBottom: "40px",
-              backgroundColor: "#fff",
-              padding: "20px",
-              borderRadius: "10px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <Line data={chartData} options={chartOptions} />
+        {/* Sección Diaria */}
+        {Object.keys(dailyData).length > 0 && (
+          <div style={{ marginBottom: "80px" }}>
+            <div
+              style={{
+                width: "100%",
+                height: "550px",
+                backgroundColor: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 6px 12px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <Bar
+                data={getBarChartData(dailyData)}
+                options={barChartOptions("Promedios Diarios de Condiciones Ambientales", "Muestra el promedio diario de cada medición.")}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Sección Semanal */}
+        {Object.keys(weeklyData).length > 0 && (
+          <div style={{ marginBottom: "80px" }}>
+            <div
+              style={{
+                width: "100%",
+                height: "550px",
+                backgroundColor: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 6px 12px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <Bar
+                data={getBarChartData(weeklyData)}
+                options={barChartOptions("Promedios Semanales de Condiciones Ambientales", "Muestra el promedio semanal de cada medición.")}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Sección Mensual */}
+        {Object.keys(monthlyData).length > 0 && (
+          <div style={{ marginBottom: "80px" }}>
+            <div
+              style={{
+                width: "100%",
+                height: "550px",
+                backgroundColor: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 6px 12px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <Bar
+                data={getBarChartData(monthlyData)}
+                options={barChartOptions("Promedios Mensuales de Condiciones Ambientales", "Muestra el promedio mensual de cada medición.")}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Sección Anual */}
+        {Object.keys(annualData).length > 0 && (
+          <div style={{ marginBottom: "80px" }}>
+            <div
+              style={{
+                width: "100%",
+                height: "550px",
+                backgroundColor: "white",
+                padding: "32px",
+                borderRadius: "16px",
+                boxShadow: "0 6px 12px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <Bar
+                data={getBarChartData(annualData)}
+                options={barChartOptions("Promedios Anuales de Condiciones Ambientales", "Muestra el promedio anual de cada medición.")}
+              />
+            </div>
+          </div>
+        )}
+
+        {historial.length === 0 && !error && (
+          <div style={{ textAlign: "center", color: "#6B7280", fontSize: "1.5rem", marginTop: "60px" }}>
+            Cargando datos de sensores...
           </div>
         )}
       </div>

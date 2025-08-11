@@ -1,7 +1,6 @@
-// src/components/Navbar.js
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "./assets/logo.png";
+import logo from "./assets/logoPlantifi.png";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -28,75 +27,58 @@ function Navbar() {
   };
 
   return (
-    <nav
-      style={{
-        backgroundColor: "#285A43",
-        padding: "10px 20px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={logo} alt="Logo" style={{ width: "40px" }} />
-        <span
-          style={{
-            color: "white",
-            fontSize: "1.5rem",
-            fontWeight: "bold",
-            marginLeft: "10px",
-          }}
-        >
-          Plantify
-        </span>
+    <nav className="bg-green-700 text-white py-4 px-6 flex justify-between items-center shadow-lg">
+      <div className="flex items-center space-x-3">
+        <img src={logo} alt="Logo" className="w-12 h-12 object-contain" />
+        <span className="text-2xl font-bold tracking-tight">Plantify</span>
       </div>
-      <ul
-        style={{
-          listStyle: "none",
-          display: "flex",
-          gap: "20px",
-          margin: 0,
-          padding: 0,
-          alignItems: "center",
-        }}
-      >
+      <ul className="flex items-center space-x-6">
         <li>
-          <Link to="/presentacion" style={{ color: "white", textDecoration: "none" }}>
+          <Link
+            to="/presentacion"
+            className="text-white hover:text-green-200 transition-colors duration-200 text-lg"
+          >
             Inicio
           </Link>
         </li>
         {esAdministrador && (
           <li>
-            <Link to="/usuarios" style={{ color: "white", textDecoration: "none" }}>
+            <Link
+              to="/usuarios"
+              className="text-white hover:text-green-200 transition-colors duration-200 text-lg"
+            >
               Usuarios
             </Link>
           </li>
         )}
         <li>
-          <Link to="/historial-notificaciones" style={{ color: "white", textDecoration: "none" }}>
+          <Link
+            to="/historial-notificaciones"
+            className="text-white hover:text-green-200 transition-colors duration-200 text-lg"
+          >
             Notificaciones
           </Link>
         </li>
         <li>
-          <Link to="/monitoreo" style={{ color: "white", textDecoration: "none" }}>
+          <Link
+            to="/monitoreo"
+            className="text-white hover:text-green-200 transition-colors duration-200 text-lg"
+          >
             Monitoreo
           </Link>
         </li>
         <li>
-          <Link to="/reportes" style={{ color: "white", textDecoration: "none" }}>
+          <Link
+            to="/reportes"
+            className="text-white hover:text-green-200 transition-colors duration-200 text-lg"
+          >
             Reportes
           </Link>
         </li>
         <li>
           <button
             onClick={handleLogout}
-            style={{
-              color: "white",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "1rem",
-            }}
+            className="text-white bg-green-800 hover:bg-green-600 transition-colors duration-200 px-4 py-2 rounded-md text-lg font-medium"
           >
             Cerrar Sesión
           </button>

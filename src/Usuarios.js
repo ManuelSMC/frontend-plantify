@@ -53,17 +53,15 @@ function Usuarios() {
     setModalEditVisible(true);
   };
 
-
-  
   const handleSaveChanges = async (e) => {
     e.preventDefault();
-  
+
     const errores = validarCampos(usuarioEdit, true); // true indica que es edición
     if (errores) {
       setMessage(errores);
       return;
     }
-  
+
     try {
       const updatedUser = await updateUsuario(usuarioEdit);
       setUsuarios(
@@ -98,7 +96,6 @@ function Usuarios() {
 
     return errores.length > 0 ? errores.join(" ") : "";
   };
-
 
   const validarCampos = (data, isEditing = false) => {
     let errores = [];
@@ -183,7 +180,7 @@ function Usuarios() {
       ...usuarioAdd,
       [name]: name === "tipo" || name === "estatus" ? parseInt(value, 10) : value,
     });
-  
+
     // Validaciones en tiempo real
     if (name === "correo") {
       const errorCorreo = validarCorreo(value);
@@ -197,7 +194,7 @@ function Usuarios() {
       setErrorContraseña(""); // Limpiar errores si no hay problemas
     }
   };
-  
+
   // Similarmente, actualiza handleChangeEdit si es necesario
   const handleChangeEdit = (e) => {
     const { name, value } = e.target;
@@ -205,7 +202,7 @@ function Usuarios() {
       ...usuarioEdit,
       [name]: name === "tipo" || name === "estatus" ? parseInt(value, 10) : value,
     });
-  
+
     // Validación en tiempo real para edición (si aplica)
     if (name === "correo") {
       const errorCorreo = validarCorreo(value);
@@ -220,11 +217,12 @@ function Usuarios() {
   const getEstatus = (estatus) => (
     <span
       style={{
-        padding: "5px 10px",
-        backgroundColor: estatus === 1 ? "#D4EDDA" : "#F8D7DA",
-        color: estatus === 1 ? "#155724" : "#721C24",
-        borderRadius: "15px",
-        fontSize: "0.85rem",
+        padding: "6px 12px",
+        backgroundColor: estatus === 1 ? "#D1FAE5" : "#FEE2E2",
+        color: estatus === 1 ? "#065F46" : "#B91C1C",
+        borderRadius: "9999px",
+        fontSize: "0.875rem",
+        fontWeight: "500",
       }}
     >
       {estatus === 1 ? "Activo" : "Inactivo"}
@@ -234,11 +232,12 @@ function Usuarios() {
   const getTipo = (tipo) => (
     <span
       style={{
-        padding: "5px 10px",
-        backgroundColor: "#E2E3E5",
-        color: "#383D41",
-        borderRadius: "15px",
-        fontSize: "0.85rem",
+        padding: "6px 12px",
+        backgroundColor: "#E5E7EB",
+        color: "#1F2937",
+        borderRadius: "9999px",
+        fontSize: "0.875rem",
+        fontWeight: "500",
       }}
     >
       {tipo === 1 ? "Administrador" : "Técnico"}
@@ -246,41 +245,45 @@ function Usuarios() {
   );
 
   const btnStyle = {
-    padding: "5px 10px",
-    fontSize: "0.9rem",
-    borderRadius: "5px",
+    padding: "6px 12px",
+    fontSize: "0.875rem",
+    borderRadius: "6px",
     cursor: "pointer",
     border: "none",
     display: "flex",
     alignItems: "center",
-    gap: "5px",
+    gap: "4px",
+    transition: "background-color 0.2s ease",
   };
 
-  const btnEditStyle = { ...btnStyle, backgroundColor: "#FFC107", color: "black" };
+  const btnEditStyle = { ...btnStyle, backgroundColor: "#FBBF24", color: "#1F2937" };
+
   const modalCloseButton = {
     position: "absolute",
-    top: "10px",
-    right: "10px",
-    fontSize: "1.5rem",
+    top: "12px",
+    right: "12px",
+    fontSize: "1.25rem",
     background: "none",
     border: "none",
-    color: "#888",
+    color: "#6B7280",
     cursor: "pointer",
+    transition: "color 0.2s ease",
   };
 
   return (
-    <div>
+    <div style={{ backgroundColor: "#F3F4F6", minHeight: "100vh" }}>
       <Navbar />
-      <div style={{ padding: "20px 40px" }}>
+      <div style={{ padding: "32px 64px", maxWidth: "1280px", margin: "0 auto" }}>
         {message && (
           <div
             style={{
-              padding: "10px",
-              marginBottom: "20px",
-              backgroundColor: message.includes("Error") ? "#F8D7DA" : "#D4EDDA",
-              color: message.includes("Error") ? "#721C24" : "#155724",
-              borderRadius: "5px",
+              padding: "12px 16px",
+              marginBottom: "24px",
+              backgroundColor: message.includes("Error") ? "#FEE2E2" : "#D1FAE5",
+              color: message.includes("Error") ? "#B91C1C" : "#065F46",
+              borderRadius: "8px",
               textAlign: "center",
+              fontWeight: "500",
             }}
           >
             {message}
@@ -292,123 +295,133 @@ function Usuarios() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "20px",
+            marginBottom: "24px",
           }}
         >
-          <h2 style={{ color: "#333", fontSize: "1.8rem", margin: 0 }}>
+          <h2 style={{ color: "#1F2937", fontSize: "1.875rem", fontWeight: "600", margin: 0 }}>
             Administrar Usuarios
           </h2>
           <button
             onClick={() => setModalAddVisible(true)}
             style={{
-              padding: "8px 20px",
+              padding: "10px 20px",
               fontSize: "1rem",
-              borderRadius: "5px",
-              backgroundColor: "#388E3B",
+              borderRadius: "6px",
+              backgroundColor: "#10B981",
               color: "white",
               border: "none",
               cursor: "pointer",
+              transition: "background-color 0.2s ease",
             }}
           >
             Añadir usuario
           </button>
         </div>
 
-        <div style={{ overflowX: "auto" }}>
+        <div style={{ overflowX: "auto", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)" }}>
           <table
             style={{
               width: "100%",
-              borderCollapse: "collapse",
-              backgroundColor: "white",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              borderCollapse: "separate",
+              borderSpacing: 0,
             }}
           >
             <thead>
               <tr>
                 <th
                   style={{
-                    backgroundColor: "#285A43",
+                    backgroundColor: "#1F2937",
                     color: "white",
-                    padding: "10px",
+                    padding: "12px 16px",
                     textAlign: "left",
-                    fontSize: "0.9rem",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
+                    borderTopLeftRadius: "8px",
                   }}
                 >
                   ID
                 </th>
                 <th
                   style={{
-                    backgroundColor: "#285A43",
+                    backgroundColor: "#1F2937",
                     color: "white",
-                    padding: "10px",
+                    padding: "12px 16px",
                     textAlign: "left",
-                    fontSize: "0.9rem",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
                   }}
                 >
                   Nombre
                 </th>
                 <th
                   style={{
-                    backgroundColor: "#285A43",
+                    backgroundColor: "#1F2937",
                     color: "white",
-                    padding: "10px",
+                    padding: "12px 16px",
                     textAlign: "left",
-                    fontSize: "0.9rem",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
                   }}
                 >
                   Apellido
                 </th>
                 <th
                   style={{
-                    backgroundColor: "#285A43",
+                    backgroundColor: "#1F2937",
                     color: "white",
-                    padding: "10px",
+                    padding: "12px 16px",
                     textAlign: "left",
-                    fontSize: "0.9rem",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
                   }}
                 >
                   Correo
                 </th>
                 <th
                   style={{
-                    backgroundColor: "#285A43",
+                    backgroundColor: "#1F2937",
                     color: "white",
-                    padding: "10px",
+                    padding: "12px 16px",
                     textAlign: "left",
-                    fontSize: "0.9rem",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
                   }}
                 >
                   Teléfono
                 </th>
                 <th
                   style={{
-                    backgroundColor: "#285A43",
+                    backgroundColor: "#1F2937",
                     color: "white",
-                    padding: "10px",
+                    padding: "12px 16px",
                     textAlign: "left",
-                    fontSize: "0.9rem",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
                   }}
                 >
                   Estatus
                 </th>
                 <th
                   style={{
-                    backgroundColor: "#285A43",
+                    backgroundColor: "#1F2937",
                     color: "white",
-                    padding: "10px",
+                    padding: "12px 16px",
                     textAlign: "left",
-                    fontSize: "0.9rem",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
                   }}
                 >
                   Tipo
                 </th>
                 <th
                   style={{
-                    backgroundColor: "#285A43",
+                    backgroundColor: "#1F2937",
                     color: "white",
-                    padding: "10px",
+                    padding: "12px 16px",
                     textAlign: "left",
-                    fontSize: "0.9rem",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
+                    borderTopRightRadius: "8px",
                   }}
                 >
                   Acciones
@@ -420,41 +433,41 @@ function Usuarios() {
                 <tr>
                   <td
                     colSpan="8"
-                    style={{ textAlign: "center", color: "#888", padding: "20px" }}
+                    style={{ textAlign: "center", color: "#6B7280", padding: "32px" }}
                   >
                     No hay usuarios registrados.
                   </td>
                 </tr>
               ) : (
-                usuarios.map((usuario) => (
-                  <tr key={usuario.id_usuario}>
-                    <td style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+                usuarios.map((usuario, index) => (
+                  <tr key={usuario.id_usuario} style={{ backgroundColor: index % 2 === 0 ? "#F9FAFB" : "white" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
                       {usuario.id_usuario}
                     </td>
-                    <td style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
                       {usuario.nombre}
                     </td>
-                    <td style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
                       {usuario.apellido}
                     </td>
-                    <td style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
                       {usuario.correo}
                     </td>
-                    <td style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
                       {usuario.telefono}
                     </td>
-                    <td style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
                       {getEstatus(usuario.estatus)}
                     </td>
-                    <td style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
                       {getTipo(usuario.tipo)}
                     </td>
                     <td
                       style={{
-                        padding: "10px",
-                        borderBottom: "1px solid #eee",
+                        padding: "12px 16px",
+                        borderBottom: "1px solid #E5E7EB",
                         display: "flex",
-                        gap: "5px",
+                        gap: "8px",
                       }}
                     >
                       <button
@@ -482,19 +495,21 @@ function Usuarios() {
             left: "0",
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            zIndex: 50,
           }}
         >
           <div
             style={{
               backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              width: "400px",
+              padding: "24px",
+              borderRadius: "12px",
+              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+              width: "450px",
+              maxWidth: "90%",
               textAlign: "center",
               position: "relative",
             }}
@@ -503,12 +518,12 @@ function Usuarios() {
               onClick={() => setModalEditVisible(false)}
               style={modalCloseButton}
             >
-              X
+              ×
             </button>
-            <h3>Editar Usuario</h3>
+            <h3 style={{ fontSize: "1.5rem", fontWeight: "600", color: "#1F2937", marginBottom: "20px" }}>Editar Usuario</h3>
             <form onSubmit={handleSaveChanges}>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Nombre
                 </label>
                 <input
@@ -517,16 +532,18 @@ function Usuarios() {
                   value={usuarioEdit.nombre}
                   onChange={handleChangeEdit}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Apellido
                 </label>
                 <input
@@ -535,16 +552,18 @@ function Usuarios() {
                   value={usuarioEdit.apellido}
                   onChange={handleChangeEdit}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Correo
                 </label>
                 <input
@@ -553,16 +572,18 @@ function Usuarios() {
                   value={usuarioEdit.correo}
                   onChange={handleChangeEdit}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Teléfono
                 </label>
                 <input
@@ -571,16 +592,18 @@ function Usuarios() {
                   value={usuarioEdit.telefono}
                   onChange={handleChangeEdit}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Tipo
                 </label>
                 <select
@@ -588,19 +611,21 @@ function Usuarios() {
                   value={usuarioEdit.tipo}
                   onChange={handleChangeEdit}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 >
                   <option value={1}>Administrador</option>
                   <option value={0}>Técnico</option>
                 </select>
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Estatus
                 </label>
                 <select
@@ -608,11 +633,13 @@ function Usuarios() {
                   value={usuarioEdit.estatus}
                   onChange={handleChangeEdit}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 >
                   <option value={1}>Activo</option>
@@ -624,12 +651,14 @@ function Usuarios() {
                   type="submit"
                   style={{
                     padding: "10px 20px",
-                    backgroundColor: "#388E3B",
+                    backgroundColor: "#10B981",
                     color: "white",
                     border: "none",
-                    borderRadius: "5px",
+                    borderRadius: "6px",
                     cursor: "pointer",
                     width: "100%",
+                    fontWeight: "500",
+                    transition: "background-color 0.2s ease",
                   }}
                 >
                   Guardar Cambios
@@ -649,19 +678,21 @@ function Usuarios() {
             left: "0",
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            zIndex: 50,
           }}
         >
           <div
             style={{
               backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              width: "400px",
+              padding: "24px",
+              borderRadius: "12px",
+              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+              width: "450px",
+              maxWidth: "90%",
               textAlign: "center",
               position: "relative",
             }}
@@ -670,12 +701,12 @@ function Usuarios() {
               onClick={() => setModalAddVisible(false)}
               style={modalCloseButton}
             >
-              X
+              ×
             </button>
-            <h3>Agregar Usuario</h3>
+            <h3 style={{ fontSize: "1.5rem", fontWeight: "600", color: "#1F2937", marginBottom: "20px" }}>Agregar Usuario</h3>
             <form onSubmit={handleAddUsuario}>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Nombre
                 </label>
                 <input
@@ -684,17 +715,19 @@ function Usuarios() {
                   value={usuarioAdd.nombre}
                   onChange={handleChangeAdd}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                   required
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Apellido
                 </label>
                 <input
@@ -703,17 +736,19 @@ function Usuarios() {
                   value={usuarioAdd.apellido}
                   onChange={handleChangeAdd}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                   required
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Correo
                 </label>
                 <input
@@ -722,17 +757,19 @@ function Usuarios() {
                   value={usuarioAdd.correo}
                   onChange={handleChangeAdd}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                   required
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Teléfono
                 </label>
                 <input
@@ -741,16 +778,18 @@ function Usuarios() {
                   value={usuarioAdd.telefono}
                   onChange={handleChangeAdd}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Tipo
                 </label>
                 <select
@@ -758,19 +797,21 @@ function Usuarios() {
                   value={usuarioAdd.tipo}
                   onChange={handleChangeAdd}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 >
                   <option value={1}>Administrador</option>
                   <option value={0}>Técnico</option>
                 </select>
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Estatus
                 </label>
                 <select
@@ -778,19 +819,21 @@ function Usuarios() {
                   value={usuarioAdd.estatus}
                   onChange={handleChangeAdd}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                 >
                   <option value={1}>Activo</option>
                   <option value={0}>Inactivo</option>
                 </select>
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", textAlign: "left" }}>
+              <div style={{ marginBottom: "16px", textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#374151", marginBottom: "4px" }}>
                   Contraseña
                 </label>
                 <input
@@ -799,11 +842,13 @@ function Usuarios() {
                   value={usuarioAdd.contraseña}
                   onChange={handleChangeAdd}
                   style={{
-                    padding: "8px",
+                    padding: "10px",
                     width: "100%",
-                    borderRadius: "5px",
-                    border: errorContraseña ? "1px solid #721C24" : "1px solid #ccc",
+                    borderRadius: "6px",
+                    border: errorContraseña ? "1px solid #B91C1C" : "1px solid #D1D5DB",
                     boxSizing: "border-box",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
                   }}
                   required
                 />
@@ -812,9 +857,9 @@ function Usuarios() {
                     style={{
                       display: "block",
                       textAlign: "left",
-                      color: "#721C24",
-                      fontSize: "0.85rem",
-                      marginTop: "5px",
+                      color: "#B91C1C",
+                      fontSize: "0.75rem",
+                      marginTop: "4px",
                     }}
                   >
                     {errorContraseña}
@@ -826,12 +871,14 @@ function Usuarios() {
                   type="submit"
                   style={{
                     padding: "10px 20px",
-                    backgroundColor: "#388E3B",
+                    backgroundColor: "#10B981",
                     color: "white",
                     border: "none",
-                    borderRadius: "5px",
+                    borderRadius: "6px",
                     cursor: "pointer",
                     width: "100%",
+                    fontWeight: "500",
+                    transition: "background-color 0.2s ease",
                   }}
                   disabled={!!errorContraseña} // Deshabilitar si hay error
                 >
