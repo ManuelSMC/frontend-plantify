@@ -1,10 +1,16 @@
-// src/components/Monitoreo.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Navbar";
 import { database } from "../../firebase";
 import { ref, onValue } from "firebase/database";
 import "../../App.css";
+
+import rabanoLlorando from "../../assets/rabano_llorando.png";
+import rabanoEnfermo from "../../assets/rabano_enfermo.png";
+import rabanoLloroso from "../../assets/rabano_lloroso.png";
+import rabano2 from "../../assets/rabano2.png";
+import rabanoRegando from "../../assets/rabano_regando.png";
+import rabanoLimpio from "../../assets/rabano_limpio.png";
 
 function Monitoreo() {
   const navigate = useNavigate();
@@ -18,7 +24,6 @@ function Monitoreo() {
   const [datosPrevios, setDatosPrevios] = useState(null);
   const [esCargaInicial, setEsCargaInicial] = useState(true);
   const [error, setError] = useState(null);
-  // Nuevo estado para las predicciones
   const [predicciones, setPredicciones] = useState({
     probabilidad_riego: null,
     probabilidad_fumigacion: null,
@@ -103,7 +108,7 @@ function Monitoreo() {
     };
 
     fetchPredicciones();
-  }, []); // Se ejecuta solo al montar el componente
+  }, []);
 
   const guardarDatosEnBackend = async (datos) => {
     try {
@@ -124,6 +129,48 @@ function Monitoreo() {
       console.error("Error de conexión con el backend:", error);
     }
   };
+
+  // Función para determinar el color según los rangos
+  const getSensorStatus = (sensor, value) => {
+    if (value === null) return "#D1D5DB"; // Gris por defecto si no hay datos
+    switch (sensor) {
+      case "CalidadAire":
+        if (value >= 80 && value <= 100) return "#10B981";
+        if (value >= 60 && value < 80) return "#F59E0B";
+        return "#EF4444";
+      case "HumedadDHT11":
+        if (value >= 60 && value <= 80) return "#10B981";
+        if ((value >= 50 && value < 60) || (value > 80 && value <= 90)) return "#F59E0B";
+        return "#EF4444";
+      case "HumedadSuelo":
+        if (value >= 60 && value <= 65) return "#10B981";
+        if ((value >= 50 && value < 60) || (value > 65 && value <= 75)) return "#F59E0B";
+        return "#EF4444";
+      case "TemperaturaDHT11":
+        if (value >= 15 && value <= 18) return "#10B981";
+        if ((value >= 12 && value < 15) || (value > 18 && value <= 21)) return "#F59E0B";
+        return "#EF4444";
+      case "TemperaturaDS18B20":
+        if (value >= 18 && value <= 29) return "#10B981";
+        if ((value >= 15 && value < 18) || (value > 29 && value <= 32)) return "#F59E0B";
+        return "#EF4444";
+      default:
+        return "#D1D5DB";
+    }
+  };
+
+  // Función para obtener imagen de predicción según el nivel
+  const getPredictionImage = (tipo, valor) => {
+    if (valor === null) return null;
+    if (valor >= 70) {
+      return tipo === "riego" ? rabanoLlorando : rabanoEnfermo;
+    } else if (valor >= 40) {
+      return tipo === "riego" ? rabanoLloroso : rabano2;
+    } else {
+      return tipo === "riego" ? rabanoRegando : rabanoLimpio;
+    }
+  };
+
 
   return (
     <div style={{ backgroundColor: "#F3F4F6", minHeight: "100vh" }}>
@@ -173,6 +220,7 @@ function Monitoreo() {
           </div>
         )}
 
+        {/* Sensores */}
         <div
           style={{
             display: "grid",
@@ -180,124 +228,120 @@ function Monitoreo() {
             gap: "24px",
           }}
         >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "24px",
-              borderRadius: "12px",
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "1.125rem", fontWeight: "500", color: "#374151", marginBottom: "8px" }}>
-              Calidad del Aire
+          {[
+            { label: "Calidad del Aire", value: datos.CalidadAire, unidad: "%", sensor: "CalidadAire" },
+            { label: "Humedad del Aire", value: datos.HumedadDHT11, unidad: "%", sensor: "HumedadDHT11" },
+            { label: "Humedad del Suelo", value: datos.HumedadSuelo, unidad: "%", sensor: "HumedadSuelo" },
+            { label: "Temperatura del Aire", value: datos.TemperaturaDHT11, unidad: "°C", sensor: "TemperaturaDHT11" },
+            { label: "Temperatura del Suelo", value: datos.TemperaturaDS18B20, unidad: "°C", sensor: "TemperaturaDS18B20" },
+          ].map((item, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: "white",
+                padding: "24px",
+                borderRadius: "12px",
+                boxShadow: `0 8px 16px -2px ${getSensorStatus(item.sensor, item.value)}80, 0 16px 32px -4px ${getSensorStatus(item.sensor, item.value)}60`,
+                textAlign: "center",
+              }}
+            >
+              <div style={{ fontSize: "1.125rem", fontWeight: "500", color: "#374151", marginBottom: "8px" }}>
+                {item.label}
+              </div>
+              <div style={{ fontSize: "2.25rem", fontWeight: "700", color: "#1F2937" }}>
+                {item.value !== null ? `${item.value} ${item.unidad}` : "Cargando..."}
+              </div>
             </div>
-            <div style={{ fontSize: "2.25rem", fontWeight: "700", color: "#1F2937" }}>
-              {datos.CalidadAire !== null ? datos.CalidadAire : "Cargando..."}
-            </div>
-          </div>
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "24px",
-              borderRadius: "12px",
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "1.125rem", fontWeight: "500", color: "#374151", marginBottom: "8px" }}>
-              Humedad (DHT11)
-            </div>
-            <div style={{ fontSize: "2.25rem", fontWeight: "700", color: "#1F2937" }}>
-              {datos.HumedadDHT11 !== null
-                ? `${datos.HumedadDHT11} %`
-                : "Cargando..."}
-            </div>
-          </div>
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "24px",
-              borderRadius: "12px",
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "1.125rem", fontWeight: "500", color: "#374151", marginBottom: "8px" }}>
-              Humedad del Suelo
-            </div>
-            <div style={{ fontSize: "2.25rem", fontWeight: "700", color: "#1F2937" }}>
-              {datos.HumedadSuelo !== null
-                ? `${datos.HumedadSuelo} %`
-                : "Cargando..."}
-            </div>
-          </div>
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "24px",
-              borderRadius: "12px",
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "1.125rem", fontWeight: "500", color: "#374151", marginBottom: "8px" }}>
-              Temperatura (DHT11)
-            </div>
-            <div style={{ fontSize: "2.25rem", fontWeight: "700", color: "#1F2937" }}>
-              {datos.TemperaturaDHT11 !== null
-                ? `${datos.TemperaturaDHT11} °C`
-                : "Cargando..."}
-            </div>
-          </div>
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "24px",
-              borderRadius: "12px",
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "1.125rem", fontWeight: "500", color: "#374151", marginBottom: "8px" }}>
-              Temperatura (DS18B20)
-            </div>
-            <div style={{ fontSize: "2.25rem", fontWeight: "700", color: "#1F2937" }}>
-              {datos.TemperaturaDS18B20 !== null
-                ? `${datos.TemperaturaDS18B20} °C`
-                : "Cargando..."}
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Sección de Predicciones */}
         <div
           style={{
             marginTop: "32px",
-            padding: "24px",
-            backgroundColor: "white",
-            borderRadius: "12px",
-            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-            textAlign: "center",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "24px",
           }}
         >
-          <h3 style={{ fontSize: "1.5rem", fontWeight: "600", color: "#1F2937", marginBottom: "16px" }}>
-            Predicciones para Mañana
-          </h3>
           {prediccionesError ? (
-            <p style={{ color: "#B91C1C", fontSize: "1.125rem" }}>{prediccionesError}</p>
+            <div
+              style={{
+                padding: "16px",
+                backgroundColor: "#FEE2E2",
+                color: "#B91C1C",
+                borderRadius: "12px",
+                textAlign: "center",
+                gridColumn: "1 / -1",
+              }}
+            >
+              {prediccionesError}
+            </div>
           ) : (
             <>
-              <p style={{ fontSize: "1.25rem", color: "#374151", marginBottom: "8px" }}>
-                Probabilidad de riego: {predicciones.probabilidad_riego !== null
-                  ? `${predicciones.probabilidad_riego}%`
-                  : "Cargando..."}
-              </p>
-              <p style={{ fontSize: "1.25rem", color: "#374151" }}>
-                Probabilidad de fumigación: {predicciones.probabilidad_fumigacion !== null
-                  ? `${predicciones.probabilidad_fumigacion}%`
-                  : "Cargando..."}
-              </p>
+              {/* Riego */}
+              <div
+                style={{
+                  position: "relative",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+                  background: `url(${getPredictionImage("riego", predicciones.probabilidad_riego)}) center/cover no-repeat`,
+                  minHeight: "250px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    padding: "20px",
+                    borderRadius: "12px",
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "8px" }}>Predicción de Riego</h3>
+                  <p style={{ fontSize: "1.25rem", fontWeight: "600" }}>
+                    {predicciones.probabilidad_riego !== null
+                      ? `${predicciones.probabilidad_riego}%`
+                      : "Cargando..."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Fumigación */}
+              <div
+                style={{
+                  position: "relative",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+                  background: `url(${getPredictionImage("fumigacion", predicciones.probabilidad_fumigacion)}) center/cover no-repeat`,
+                  minHeight: "250px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    padding: "20px",
+                    borderRadius: "12px",
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "8px" }}>Predicción de Fumigación</h3>
+                  <p style={{ fontSize: "1.25rem", fontWeight: "600" }}>
+                    {predicciones.probabilidad_fumigacion !== null
+                      ? `${predicciones.probabilidad_fumigacion}%`
+                      : "Cargando..."}
+                  </p>
+                </div>
+              </div>
             </>
           )}
         </div>
